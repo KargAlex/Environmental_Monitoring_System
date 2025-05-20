@@ -47,6 +47,7 @@ void uart_rx_isr(uint8_t rx) {
 
 void handle_input(void) {
 	uint8_t rx;
+
 	// Decide which prompt to show
 	if(!password_requested && !AEM_requested && !menu_option_requested) {
 		if(!password_validated) {
@@ -157,7 +158,9 @@ int main() {
 	uart_print("\r\n");
 
 	while(1) {
+		
 		handle_input();
+		__WFI();
 
 		if(password_entered) {
 			password_entered = false;
