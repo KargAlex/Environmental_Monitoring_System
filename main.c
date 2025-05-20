@@ -33,8 +33,8 @@
  bool AEM_requested = false;
  bool menu_option_requested = false;
 
- bool password_validated = false;  		// did we pass password?
- bool AEM_validated = false;  				// did we pass AEM?
+ bool password_validated = false;  		// is password correct?
+ bool AEM_validated = false;  				// isAEM correct?
  bool menu_option_validated = false;	// is option input correct?
 
 
@@ -83,12 +83,34 @@ void handle_input(void) {
 			}
 			else if(rx == '\r') {  // enter
 				uart_print("\r\n");
-				if(password_requested)      
-					password_entered = true;
-				else if(AEM_requested)      
-					AEM_entered = true;
-				else if(menu_option_requested) 
-					menu_option_entered = true;
+				
+				if(password_requested) {  
+					if(strncmp(buffer, "clear", sizeof("clear")-1) == 0) {
+						uart_print("\033[2J\033[H");
+						buff_index = 0;
+						password_requested = false;
+					}
+					else
+						password_entered = true;
+				}
+				else if(AEM_requested) { 
+					if(strncmp(buffer, "clear", sizeof("clear")-1) == 0) {
+						uart_print("\033[2J\033[H");
+						buff_index = 0;
+						AEM_requested = false;
+					}
+					else 
+						AEM_entered = true;
+				}
+				else if(menu_option_requested) {
+					if(strncmp(buffer, "clear", sizeof("clear")-1) == 0) {
+						uart_print("\033[2J\033[H");
+						buff_index = 0;
+						menu_option_requested = false;
+					}
+					else
+						menu_option_entered = true;
+				}
 			}
 			else if (buff_index < BUFF_SIZE - 1) {
 				buffer[buff_index++] = (char)rx;
@@ -160,7 +182,6 @@ int main() {
 	while(1) {
 		
 		handle_input();
-		__WFI();
 
 		if(password_entered) {
 			password_entered = false;
