@@ -1,10 +1,8 @@
-# Autonomous Environmental Monitoring System – STM32F401RE
+# 🌡️ Autonomous Environmental Monitoring System – STM32F401RE
 
 ## 📌 Overview
 
-This project implements an autonomous environmental monitoring system using the ARM Cortex-M4-based STM32F401RE microcontroller. It combines temperature-humidity sensing, user interaction through touch input and UART, and output signaling via an onboard LED.
-
-Designed for the *"Microprocessors and Peripherals"* course (8th semester, ECE AUTH, Spring 2025), the project demonstrates the integration and management of multiple peripherals using C, hardware timers, and interrupts.
+This project implements an autonomous environmental monitoring system using the **STM32F401RE** microcontroller, written in **C** with CMSIS and HAL libraries. The system uses **timers**, **interrupts**, **UART**, and peripherals including the **DHT11 sensor**, **LED**, and **capacitive touch sensor**.
 
 ---
 
@@ -21,35 +19,73 @@ Designed for the *"Microprocessors and Peripherals"* course (8th semester, ECE A
 
 ---
 
-## ⚙️ System Functionality
+## ⚙️ Features
 
-### 1. 📡 Sensor Reading (DHT11)
-- The DHT11 is interfaced using GPIO-based bit-banging (custom protocol implementation).
-- Data is sampled every **2 seconds** using **TIM2**.
-- Sensor data includes:
-  - Temperature in °C
-  - Relative humidity in %
-- Readings are printed over UART in a human-readable format.
+### 🔐 1. System Startup – Password & AEM Input
+- On power-up, the system prompts for a **password** via UART.
+- If the password is correct, it asks for the **AEM** (student ID) for personalized settings.
+- If the password is incorrect, an error message is printed and input is requested again.
 
-### 2. ✋ Touch Sensor Interaction
-- A capacitive touch sensor triggers **EXTI** (external interrupt).
-- On each touch:
-  - The current temperature and humidity reading is immediately shown over UART.
-  - A touch counter is incremented and logged.
-  - The LED toggles state as visual feedback.
+---
 
-### 3. 💡 LED Control
-- **Onboard LED (PA5)** responds to:
-  - Touch inputs (toggles on each press)
-  - Sensor reading events (blinks briefly on each read)
-- LED actions are handled in the main loop or timer ISR.
+### 📋 2. UART Menu Interface
+On successful login, the following menu appears via UART:
 
-### 4. 🖥️ UART Communication
-- UART is used for:
-  - Sending sensor readings
-  - Logging touch events
-  - Debugging information
-- Configured at **115200 baud**, 8N1.
+```text
+=== Environmental Monitoring System ===
+Options:
+a: Increase sampling interval by 1s (minimum: 2s)
+b: Decrease sampling interval by 1s (maximum: 10s)
+c: Toggle display: Temperature / Humidity / Both
+d: Print last readings and system status
+```
+Commands are accepted any time, even during normal operation.
+
+---
+
+### 🌡️ 3. Normal Operation – Mode A
+- Periodically reads and prints **temperature** and **humidity** values from the DHT11 sensor.
+- Display format depends on the active user setting (temp / humidity / both).
+- Frequency of readings is user-configurable via UART menu.
+
+---
+
+### 🔄 4. Touch Sensor – Mode Switching
+- Each press of the touch sensor toggles the system between:
+  - **Mode A (Normal)** – standard monitoring
+  - **Mode B (Alert)** – system enters alert behavior if:
+    - Temperature > 25°C or
+    - Humidity > 60%
+- In **Alert Mode**:
+  - An **LED blinks every 1 second** when above thresholds.
+  - LED stops if values stay within limits for **5 consecutive readings**.
+
+---
+
+### ⏱️ 5. Dynamic Frequency Update (Every 3rd Touch)
+- Every **third touch** of the capacitive sensor:
+  - Computes a new sampling interval based on the **last two digits of the AEM**:
+    - `new_interval = AEM[-2] + AEM[-1]` (e.g., AEM 8753 → 5 + 3 = 8s)
+
+---
+
+### 📡 6. UART Command: `status`
+Typing the `status` command via UART displays:
+```text
+Mode: A (Normal)
+Temp: 22.4°C, Humidity: 58%
+Touch count: 1
+```
+
+---
+
+### 🔥 7. Panic Reset – Extreme Conditions
+If:
+- **Temperature > 35°C** or
+- **Humidity > 80%**
+- Persist for **3 consecutive readings**:
+
+Then the MCU software resets
 
 ---
 
@@ -64,18 +100,18 @@ Designed for the *"Microprocessors and Peripherals"* course (8th semester, ECE A
 
 ---
 
-## 🗂 File Structure
-/Project_Root/
-│
-├── Core/
-│ ├── Src/
-│ │ ├── main.c # Main program logic
-│ │ ├── dht11.c # DHT11 read protocol
-│ │ └── touch.c # Touch interrupt logic
-│ └── Inc/
-│ ├── dht11.h
-│ └── touch.h
-├── Drivers/ CMSIS and ARM University drivers
-├── README.md # This file
-└── ...
+## 🗂 Files
 
+- `main.c` – Handles UART input and output and control logic.
+- `dht11.c` # DHT11 sensor library
+- `touch.c` # Touch sensor library
+- `dht11.h` # DHT11 sensor library header
+- `touch.h` # Touch sensor library header
+
+---
+
+## 🧪 Sample UART Output
+Shown in Demo.mp4 video
+
+---
+📌 *Developed for the "Microprocessors & Peripherals" 8th semester course, AUTh, Spring 2025.*
