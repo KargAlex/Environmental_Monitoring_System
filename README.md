@@ -89,17 +89,6 @@ Then the MCU software resets
 
 ---
 
-## 🔧 Implementation Details
-
-- **Language**: C
-- **Timers**:
-  - TIM2: triggers DHT11 read every 2 seconds (interrupt-based)
-- **Interrupts**:
-  - EXTI: handles touch sensor input
-  - Timer interrupt: handles periodic DHT11 sampling
-
----
-
 ## 🗂 Files
 
 - `main.c` – Handles UART input and output and control logic.
