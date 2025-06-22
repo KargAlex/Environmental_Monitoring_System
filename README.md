@@ -83,7 +83,7 @@ Touch count: 1
 If:
 - **Temperature > 35°C** or
 - **Humidity > 80%**
-- Persist for **3 consecutive readings**:
+- Persists for **3 consecutive readings**:
 
 Then the MCU software resets
 
