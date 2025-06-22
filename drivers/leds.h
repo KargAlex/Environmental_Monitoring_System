@@ -6,6 +6,8 @@
 #ifndef LEDS_H
 #define LEDS_H
 
+#define LED PB_8
+
 /*! \brief Initializes the pins for the red, green, and blue LEDs.
  */
 void leds_init(void);

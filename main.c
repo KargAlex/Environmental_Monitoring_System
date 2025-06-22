@@ -13,6 +13,7 @@
 #include "dht11.h"
 
 #define SENSOR_PIN PB_3
+#define TOUCH_SENSOR_PIN PB_9
 #define CRITICAL_HUMIDITY 80
 #define CRITICAL_TEMPERATURE 35
 #define BUFF_SIZE 64
@@ -101,7 +102,7 @@ void handle_input(void) {
         if (rx == 0x7F) {
 					if (buff_index > 0) {
 						buff_index--;
-						buffer[buff_index] = '\0'; // <-- ?a?a??sµ?? t?? ?a?a?t??a p?? sß?st??e
+						buffer[buff_index] = '\0'; 
 						uart_tx(rx);
 					}
 				} else if (rx == '\r') {
@@ -121,7 +122,7 @@ bool check_password() {
 			return false;
 		}
 		
-    bool ok = (strncmp(buffer, PASSWORD, strlen(PASSWORD)) == 0);
+    bool ok = (strcmp(buffer, PASSWORD) == 0);
     uart_print(ok ? "Correct password.\r\n" : "Wrong password.\r\n");
     memset(buffer, 0, BUFF_SIZE);
     buff_index = 0;
@@ -399,9 +400,10 @@ int main() {
 	leds_init();
 	 
 	// initiate touch button
-	initialize_touch(PA_8);
-	Pin btn_pin = initialize_button();
-	gpio_set_callback(btn_pin, button_callback);
+	initialize_touch(TOUCH_SENSOR_PIN);
+	//Pin btn_pin = initialize_button();
+	gpio_set_callback(TOUCH_SENSOR_PIN, button_callback);
+	
 	
 	NVIC_SetPriority(EXTI9_5_IRQn, 1);
 	NVIC_SetPriority(EXTI15_10_IRQn, 1);
